@@ -1,5 +1,17 @@
-import { Box, Button, Center, Container, Heading, SimpleGrid, Text, theme } from '@chakra-ui/react';
-import React from 'react';
+import {
+  Box,
+  Button,
+  Center,
+  Container,
+  Grid,
+  Heading,
+  HStack,
+  SimpleGrid,
+  Text,
+  theme,
+  Link as ChakraLink,
+} from '@chakra-ui/react';
+import React, { useRef } from 'react';
 import { Link } from 'react-router-dom';
 
 const Hero = () => {
@@ -66,11 +78,60 @@ const DevProfiles = () => {
   );
 };
 
-const HomePage = () => {
+const NavBar = () => {
+  const navItems = ['Home', 'Dev Pages'];
   return (
     <>
-      <DevProfiles />
-      <Hero />
+      <Grid
+        pos="fixed"
+        width="100vw"
+        height={theme.sizes[16]}
+        zIndex={theme.zIndices.docked}
+        templateColumns="20rem 1fr"
+        alignContent="end"
+      >
+        <Center>
+          <Heading color="white" as="h2" size="2xl">
+            Onn Go Off
+          </Heading>
+        </Center>
+        <Center alignItems="end">
+          <HStack w="100%">
+            {navItems.map((name) => {
+              return (
+                <ChakraLink key={name} margin="0 1rem 0 1rem">
+                  <Heading color="white" size="md">
+                    {name}
+                  </Heading>
+                </ChakraLink>
+              );
+            })}
+          </HStack>
+        </Center>
+      </Grid>
+    </>
+  );
+};
+
+const HomePage = () => {
+  const devProfileEl = useRef<HTMLDivElement>(null);
+  const heroEl = useRef<HTMLDivElement>(null);
+
+  const scrollToView = () => {
+    heroEl?.current?.scrollIntoView();
+  };
+
+  return (
+    <>
+      <NavBar />
+
+      <div ref={devProfileEl}>
+        <DevProfiles />
+      </div>
+
+      <div ref={heroEl}>
+        <Hero />
+      </div>
     </>
   );
 };
