@@ -1,33 +1,45 @@
-import { Box, Center, Container, Heading, Text, theme } from '@chakra-ui/react';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
+import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
+
+// import PageWrapper from './components/PageWrapper';
+
+import Glenn from './dev_profiles/Glenn';
+import Khor from './dev_profiles/Khor';
+import Onn from './dev_profiles/Onn';
+import Ryan from './dev_profiles/Ryan';
+import Woon from './dev_profiles/Woon';
+
+import HomePage from './HomePage';
 
 function App() {
-  const [width, setWidth] = useState(window.innerWidth);
-  const [height, setHeight] = useState(window.innerHeight);
-  const updateDimensions = () => {
-    setWidth(window.innerWidth);
-    setHeight(window.innerHeight);
-  };
-  useEffect(() => {
-    window.addEventListener('resize', updateDimensions);
-    return () => window.removeEventListener('resize', updateDimensions);
-  }, []);
-
   return (
-    <>
-      <Box padding="4" height={height} bg="brand.persian-green">
-        <Center h={theme.sizes.full}>
-          <Container centerContent maxW={theme.sizes.full}>
-            <Heading as="h1" fontSize={theme.fontSizes['9xl']} color="white">
-              Onn Go Off
-            </Heading>
-            <Text fontSize="6xl" color="brand.charcoal-black" textTransform="capitalize">
-              ya yeet skrrt skrrt
-            </Text>
-          </Container>
-        </Center>
-      </Box>
-    </>
+    <Router>
+      <Switch>
+        <Route exact path="/">
+          <HomePage />
+        </Route>
+        <Route exact path="/Glenn">
+          {/* {PageWrapper(Glenn, 'white')} */}
+          <Glenn />
+        </Route>
+        <Route exact path="/Khor">
+          {/* {PageWrapper(Khor, 'white')} */}
+          <Khor />
+        </Route>
+        <Route exact path="/Onn">
+          {/* {PageWrapper(Onn, 'white')} */}
+          <Onn />
+        </Route>
+        <Route exact path="/Ryan">
+          {/* {PageWrapper(Ryan, 'white')} */}
+          <Ryan />
+        </Route>
+        <Route exact path="/Woon">
+          {/* {PageWrapper(Woon, 'white')} */}
+          <Woon />
+        </Route>
+      </Switch>
+    </Router>
   );
 }
 
