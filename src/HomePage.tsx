@@ -1,137 +1,84 @@
-import {
-  Box,
-  Button,
-  Center,
-  Container,
-  Grid,
-  Heading,
-  HStack,
-  SimpleGrid,
-  Text,
-  theme,
-  Link as ChakraLink,
-} from '@chakra-ui/react';
-import React, { useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Box } from '@chakra-ui/react';
+import React, { useCallback, useEffect, useState } from 'react';
+import About from './About';
+import DevProfiles from './DevProfiles';
+import Hero from './Hero';
+import NavBar from './NavBar';
 
-const Hero = () => {
-  return (
-    <>
-      <Box padding="4" height="100vh" bg="brand.yellow-crayola">
-        <Center h={theme.sizes.full}>
-          <Container centerContent maxW={theme.sizes.full}>
-            <Heading as="h1" fontSize={theme.fontSizes['9xl']} color="white">
-              Onn Go Off
-            </Heading>
-            <Text fontSize="6xl" color="brand.charcoal-black" textTransform="capitalize">
-              ya yeet skrrt skrrt
-            </Text>
-          </Container>
-        </Center>
-      </Box>
-    </>
-  );
-};
+export const navItems = [
+  { name: 'Home', hash: 'hero', color: 'brand.persian-green' },
+  { name: 'Dev Pages', hash: 'dev-profiles', color: 'brand.yellow-crayola' },
+  { name: 'About', hash: 'about', color: 'brand.charcoal-black' },
+];
 
-const DevProfiles = () => {
-  const devList = ['Onn', 'Ryan', 'Khor', 'Glenn', 'Woon'];
-  return (
-    <>
-      <Box padding="4" height="100vh" bg="brand.persian-green">
-        <Center h={theme.sizes.full}>
-          <Container centerContent maxW={theme.sizes.full}>
-            <Heading as="h1" fontSize={theme.fontSizes['6xl']} color="white">
-              View Dev Pages
-            </Heading>
-            <SimpleGrid columns={2} spacing={4} marginTop={6}>
-              {devList.map((devName, index) => {
-                return (
-                  <Link key={devName} to={`/${devName}`}>
-                    <Button
-                      _hover={{
-                        boxShadow: theme.shadows.lg,
-                      }}
-                      bgColor="white"
-                      borderRadius={theme.radii.base}
-                      width="250px"
-                      boxShadow="base"
-                      height="125px"
-                    >
-                      <Center h={theme.sizes.full}>
-                        <Text
-                          fontSize={theme.fontSizes['3xl']}
-                          fontWeight={theme.fontWeights.semibold}
-                          letterSpacing={theme.letterSpacings.widest}
-                        >
-                          {devName}
-                        </Text>
-                      </Center>
-                    </Button>
-                  </Link>
-                );
-              })}
-            </SimpleGrid>
-          </Container>
-        </Center>
-      </Box>
-    </>
-  );
-};
-
-const NavBar = () => {
-  const navItems = ['Home', 'Dev Pages'];
-  return (
-    <>
-      <Grid
-        pos="fixed"
-        width="100vw"
-        height={theme.sizes[16]}
-        zIndex={theme.zIndices.docked}
-        templateColumns="20rem 1fr"
-        alignContent="end"
-      >
-        <Center>
-          <Heading color="white" as="h2" size="2xl">
-            Onn Go Off
-          </Heading>
-        </Center>
-        <Center alignItems="end">
-          <HStack w="100%">
-            {navItems.map((name) => {
-              return (
-                <ChakraLink key={name} margin="0 1rem 0 1rem">
-                  <Heading color="white" size="md">
-                    {name}
-                  </Heading>
-                </ChakraLink>
-              );
-            })}
-          </HStack>
-        </Center>
-      </Grid>
-    </>
-  );
-};
+interface HomePageContextProps {
+  goToPage: (page: number) => void;
+}
+export const HomePageContext = React.createContext<HomePageContextProps>({ goToPage: (page: number) => {} });
 
 const HomePage = () => {
-  const devProfileEl = useRef<HTMLDivElement>(null);
-  const heroEl = useRef<HTMLDivElement>(null);
+  const [currentNav, setCurrentNav] = useState(0);
+  const [ticking, setTicking] = useState(false);
+  const [currentColor, setCurrentColor] = useState('brand.persian-green');
 
-  const scrollToView = () => {
-    heroEl?.current?.scrollIntoView();
-  };
+  const goToPage = useCallback((page: number) => {
+    window.history.pushState(null, '', `#${navItems[page].hash}`);
+    // window.location.hash = navItems[page].hash; // instant scroll
+    document.getElementById(navItems[page].hash)?.scrollIntoView({ behavior: 'smooth' });
+    setCurrentColor(navItems[page].color);
+  }, []);
+
+  useEffect(() => {
+    const handlePageScroll = (e: WheelEvent) => {
+      e.preventDefault();
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          if (e.deltaY > 0) {
+            // scroll down
+            setCurrentNav((curr) => {
+              if (curr + 1 > navItems.length - 1) {
+                goToPage(curr);
+                return curr;
+              } else {
+                goToPage(curr + 1);
+                return curr + 1;
+              }
+            });
+          } else {
+            // scroll up
+            setCurrentNav((curr) => {
+              if (curr - 1 < 0) {
+                goToPage(curr);
+                return curr;
+              } else {
+                goToPage(curr - 1);
+                return curr - 1;
+              }
+            });
+          }
+          setTicking(false);
+        });
+        setTicking(true);
+      }
+    };
+
+    document.addEventListener('wheel', handlePageScroll, { passive: false });
+
+    return () => {
+      document.removeEventListener('wheel', handlePageScroll);
+    };
+  }, [currentNav, goToPage, ticking]);
 
   return (
     <>
-      <NavBar />
-
-      <div ref={devProfileEl}>
-        <DevProfiles />
-      </div>
-
-      <div ref={heroEl}>
+      <HomePageContext.Provider value={{ goToPage }}>
+        <NavBar />
+      </HomePageContext.Provider>
+      <Box transition="background-color 0.25s ease-in-out" bg={currentColor}>
         <Hero />
-      </div>
+        <DevProfiles />
+        <About />
+      </Box>
     </>
   );
 };

@@ -1,20 +1,3 @@
-import {
-  Box,
-  Button,
-  Center,
-  Container,
-  Heading,
-  SimpleGrid,
-  Text,
-  theme,
-  extendTheme,
-  useStyleConfig,
-  Flex,
-  Square,
-  Spacer,
-  Grid,
-  Link,
-} from '@chakra-ui/react';
 import React from 'react';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 
@@ -28,8 +11,31 @@ import Woon from './dev_profiles/Woon';
 
 import HomePage from './HomePage';
 
+// interface AppContextInterface {
+//   windowHeight: number;
+//   windowWidth: number;
+// }
+
+// export const AppContext = React.createContext<AppContextInterface>({ windowHeight: 0, windowWidth: 0 });
+
 function App() {
+  // const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  // const [windowHeight, setWindowHeight] = useState(window.innerHeight);
+
+  // const resizeWindowAction = () => {
+  //   setWindowWidth(window.outerWidth);
+  //   setWindowHeight(window.outerHeight);
+  // };
+
+  // useEffect(() => {
+  //   window.addEventListener('resize', resizeWindowAction);
+  //   return () => {
+  //     window.removeEventListener('resize', resizeWindowAction);
+  //   };
+  // }, []);
+
   return (
+    // <AppContext.Provider value={{ windowWidth, windowHeight }}>
     <Router>
       <Switch>
         <Route exact path="/">
@@ -57,6 +63,7 @@ function App() {
         </Route>
       </Switch>
     </Router>
+    // </AppContext.Provider>
   );
 }
 
