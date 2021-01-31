@@ -41,24 +41,19 @@ function App() {
         <Route exact path="/">
           <HomePage />
         </Route>
-        <Route exact path="/Glenn">
-          {/* {PageWrapper(Glenn, 'white')} */}
+        <Route path="/Glenn">
           <Glenn />
         </Route>
-        <Route exact path="/Khor">
-          {/* {PageWrapper(Khor, 'white')} */}
+        <Route path="/Khor">
           <Khor />
         </Route>
-        <Route exact path="/Onn">
-          {/* {PageWrapper(Onn, 'white')} */}
+        <Route path="/Onn">
           <Onn />
         </Route>
-        <Route exact path="/Ryan">
-          {/* {PageWrapper(Ryan, 'white')} */}
+        <Route path="/Ryan">
           <Ryan />
         </Route>
-        <Route exact path="/Woon">
-          {/* {PageWrapper(Woon, 'white')} */}
+        <Route path="/Woon">
           <Woon />
         </Route>
       </Switch>
