@@ -12,66 +12,47 @@ export const navItems = [
 ];
 
 interface HomePageContextProps {
-  goToPage: (page: number) => void;
+  setPage: (n: number) => void;
 }
-export const HomePageContext = React.createContext<HomePageContextProps>({ goToPage: (page: number) => {} });
+export const HomePageContext = React.createContext<HomePageContextProps>({ setPage: (n: number) => {} });
 
 const HomePage = () => {
-  const [currentNav, setCurrentNav] = useState(0);
-  const [ticking, setTicking] = useState(false);
   const [currentColor, setCurrentColor] = useState('brand.persian-green');
+  const [currentNav, setCurrentNav] = useState(0);
 
-  const goToPage = useCallback((page: number) => {
-    window.history.pushState(null, '', `#${navItems[page].hash}`);
-    // window.location.hash = navItems[page].hash; // instant scroll
-    document.getElementById(navItems[page].hash)?.scrollIntoView({ behavior: 'smooth' });
-    setCurrentColor(navItems[page].color);
-  }, []);
+  const setPage = (x: number) => {
+    setCurrentNav(x);
+    document.getElementById(navItems[x].hash)?.scrollIntoView({ behavior: 'smooth' });
+    setCurrentColor(navItems[x].color);
+  };
 
   useEffect(() => {
     const handlePageScroll = (e: WheelEvent) => {
       e.preventDefault();
-      if (!ticking) {
-        window.requestAnimationFrame(() => {
-          if (e.deltaY > 0) {
-            // scroll down
-            setCurrentNav((curr) => {
-              if (curr + 1 > navItems.length - 1) {
-                goToPage(curr);
-                return curr;
-              } else {
-                goToPage(curr + 1);
-                return curr + 1;
-              }
-            });
-          } else {
-            // scroll up
-            setCurrentNav((curr) => {
-              if (curr - 1 < 0) {
-                goToPage(curr);
-                return curr;
-              } else {
-                goToPage(curr - 1);
-                return curr - 1;
-              }
-            });
-          }
-          setTicking(false);
-        });
-        setTicking(true);
+      let x = currentNav;
+      if (e.deltaY > 0) {
+        // scroll down
+        if (currentNav + 1 <= navItems.length - 1) {
+          x = currentNav + 1;
+        }
+      } else {
+        // scroll up
+        if (currentNav - 1 >= 0) {
+          x = currentNav - 1;
+        }
       }
+      setPage(x);
     };
 
     document.addEventListener('wheel', handlePageScroll, { passive: false });
-
     return () => {
       document.removeEventListener('wheel', handlePageScroll);
     };
-  }, [currentNav, goToPage, ticking]);
+  }, [currentNav]);
 
   return (
     <>
-      <HomePageContext.Provider value={{ goToPage }}>
+      <HomePageContext.Provider value={{ setPage }}>
         <NavBar />
       </HomePageContext.Provider>
       <Box transition="background-color 0.25s ease-in-out" bg={currentColor}>
