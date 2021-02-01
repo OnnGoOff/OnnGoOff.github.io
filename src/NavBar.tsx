@@ -1,6 +1,5 @@
 import { Center, Grid, Heading, HStack, Link as ChakraLink, theme } from '@chakra-ui/react';
 import React, { useContext } from 'react';
-import { Link } from 'react-router-dom';
 import { HomePageContext, navItems } from './HomePage';
 
 const NavBar = () => {
@@ -21,19 +20,26 @@ const NavBar = () => {
         paddingBottom={8}
       >
         <Center>
-          <Heading color="white" as="h2" fontSize={'2xl'}>
+          <Heading
+            textShadow="0 4px 6px rgba(0, 0, 0, 0.1),0 2px 4px rgba(0, 0, 0, 0.06)"
+            color="white"
+            as="h2"
+            fontSize={'2xl'}
+          >
             Onn Go Off
           </Heading>
         </Center>
         <HStack w="100%" alignItems="end">
           {navItems.map((obj, ix) => {
             return (
-              <ChakraLink key={obj.hash} margin="0 1rem 0 1rem">
-                <Link to={{ hash: `#${obj.hash}` }} onClick={() => setPage(ix)}>
-                  <Heading color="white" size="md">
-                    {obj.name}
-                  </Heading>
-                </Link>
+              <ChakraLink key={obj.hash} margin="0 1rem 0 1rem" onClick={() => setPage(ix)}>
+                <Heading
+                  color="white"
+                  textShadow="0 4px 6px rgba(0, 0, 0, 0.1),0 2px 4px rgba(0, 0, 0, 0.06)"
+                  size="md"
+                >
+                  {obj.name}
+                </Heading>
               </ChakraLink>
             );
           })}

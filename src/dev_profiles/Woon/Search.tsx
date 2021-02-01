@@ -17,7 +17,7 @@ import {
 } from '@chakra-ui/react';
 import React, { ChangeEvent, useContext, useEffect, useRef, useState } from 'react';
 import StudentData from './data';
-import { WoonPageContext, WoonPageContextProps, StudentInformation } from './index';
+import { WoonPageContext, StudentInformation } from './index';
 
 const NavigationGroup = () => {
   const { students, perPage, setPage, page, handleSliderChange } = useContext(WoonPageContext);
@@ -71,7 +71,7 @@ const NavigationGroup = () => {
   );
 };
 
-const HomePage = () => {
+const Search = () => {
   const [students, setStudents] = useState<StudentInformation[]>();
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(24);
@@ -84,7 +84,7 @@ const HomePage = () => {
     const x = searchRef.current?.value.replace(/t:\d+/i, '');
     const y = x?.replace(/tp:\d+/i, '');
 
-    const q = y?.trim();
+    const q = y?.trim().toLowerCase();
 
     const newStudents = StudentData.filter((student) => {
       let t = true,
@@ -127,7 +127,13 @@ const HomePage = () => {
   return (
     <WoonPageContext.Provider value={{ students, handleSliderChange, page, perPage, setPage }}>
       <Container centerContent maxW={theme.sizes['6xl']}>
-        <Heading as="h1" color="white" marginBottom={theme.space[8]} size="3xl">
+        <Heading
+          as="h1"
+          fontSize={[theme.fontSizes['2xl'], theme.fontSizes['6xl']]}
+          color="white"
+          marginBottom={theme.space[8]}
+          size="3xl"
+        >
           Students in UCDF1904ICT(SE)
         </Heading>
         <Input
@@ -139,7 +145,7 @@ const HomePage = () => {
           placeholder="Name [tp:number] [t:number]"
         />
         <NavigationGroup />
-        <StatGroup>
+        <StatGroup maxW={theme.sizes.full}>
           {students?.slice((page - 1) * perPage, perPage * page).map((student) => {
             return (
               <Box
@@ -151,6 +157,7 @@ const HomePage = () => {
                 borderRadius={theme.radii.lg}
                 boxShadow={theme.shadows.md}
                 px={theme.space[3]}
+                maxW={theme.sizes.full}
               >
                 <Stat>
                   <StatLabel>{student.tp}</StatLabel>
@@ -167,4 +174,4 @@ const HomePage = () => {
   );
 };
 
-export default HomePage;
+export default Search;

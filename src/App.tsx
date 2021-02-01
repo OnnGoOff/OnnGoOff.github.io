@@ -1,5 +1,6 @@
+import { Box } from '@chakra-ui/react';
 import React from 'react';
-import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
+import { HashRouter as Router, Switch, Route } from 'react-router-dom';
 
 // import PageWrapper from './components/PageWrapper';
 
@@ -39,7 +40,9 @@ function App() {
     <Router>
       <Switch>
         <Route exact path="/">
-          <HomePage />
+          <Box overflowY="hidden">
+            <HomePage />
+          </Box>
         </Route>
         <Route path="/Glenn">
           <Glenn />

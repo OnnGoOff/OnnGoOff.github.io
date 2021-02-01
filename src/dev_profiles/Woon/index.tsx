@@ -1,8 +1,10 @@
-import { Box, theme, Center, HStack, Link as ChakraLink, Heading } from '@chakra-ui/react';
+import { Box, theme, Center, Flex, Text, Link as ChakraLink, Grid } from '@chakra-ui/react';
 import React from 'react';
-import { BrowserRouter as Router, Switch, Route, Link, useRouteMatch, useParams } from 'react-router-dom';
-import HomePage from './HomePage';
+import { Switch, Route, Link, useRouteMatch } from 'react-router-dom';
+import { ChevronLeftIcon } from '@chakra-ui/icons';
+import Search from './Search';
 import About from './About';
+import Home from './Home';
 
 export interface WoonPageContextProps {
   students: StudentInformation[] | undefined;
@@ -47,27 +49,55 @@ const Woon = () => {
           marginBottom={theme.space[8]}
           paddingBottom={theme.space[2]}
         >
-          <Center w={theme.sizes.full} h={theme.sizes.full}>
-            <HStack>
+          <Center h={theme.sizes.full}>
+            <Grid autoFlow="column" w={[theme.sizes.full, 'initial']} templateColumns={['1fr 4fr', '3fr 1fr']}>
               <ChakraLink mx={2} color="white" fontWeight={theme.fontWeights.semibold} fontSize={theme.fontSizes.lg}>
-                <Link to="/">Back to Home Page</Link>
+                <Link to="/">
+                  <Flex>
+                    <ChevronLeftIcon w={8} h={8} />
+                    <Text d={['none', 'initial']}>Back to Home Page</Text>
+                  </Flex>
+                </Link>
               </ChakraLink>
-              <ChakraLink mx={2} color="white" fontWeight={theme.fontWeights.semibold} fontSize={theme.fontSizes.lg}>
-                <Link to={woonMatch.url}>Student Search</Link>
-              </ChakraLink>
-              <ChakraLink mx={2} color="white" fontWeight={theme.fontWeights.semibold} fontSize={theme.fontSizes.lg}>
-                <Link to={`${woonMatch.url}/about`}>About Me</Link>
-              </ChakraLink>
-            </HStack>
+              <Flex>
+                <ChakraLink
+                  fontSize={[theme.fontSizes.md, theme.fontSizes.lg]}
+                  mx={2}
+                  color="white"
+                  fontWeight={theme.fontWeights.semibold}
+                >
+                  <Link to={woonMatch.url}>Home</Link>
+                </ChakraLink>
+                <ChakraLink
+                  fontSize={[theme.fontSizes.md, theme.fontSizes.lg]}
+                  mx={2}
+                  color="white"
+                  fontWeight={theme.fontWeights.semibold}
+                >
+                  <Link to={`${woonMatch.url}/search`}>Student Search</Link>
+                </ChakraLink>
+                <ChakraLink
+                  fontSize={[theme.fontSizes.md, theme.fontSizes.lg]}
+                  mx={2}
+                  color="white"
+                  fontWeight={theme.fontWeights.semibold}
+                >
+                  <Link to={`${woonMatch.url}/about`}>About Me</Link>
+                </ChakraLink>
+              </Flex>
+            </Grid>
           </Center>
         </Box>
 
         <Switch>
           <Route exact path={woonMatch.path}>
-            <HomePage />
+            <Home />
           </Route>
           <Route path={`${woonMatch.path}/about`}>
             <About />
+          </Route>
+          <Route path={`${woonMatch.path}/search`}>
+            <Search />
           </Route>
         </Switch>
       </Box>
