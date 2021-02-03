@@ -32,7 +32,7 @@ const NavBar = () => {
         <HStack w="100%" alignItems="end">
           {navItems.map((obj, ix) => {
             return (
-              <ChakraLink key={obj.hash} margin="0 1rem 0 1rem" onClick={() => setPage(ix)}>
+              <ChakraLink as="div" key={obj.hash} margin="0 1rem 0 1rem" onClick={() => setPage(ix)}>
                 <Heading
                   color="white"
                   textShadow="0 4px 6px rgba(0, 0, 0, 0.1),0 2px 4px rgba(0, 0, 0, 0.06)"
