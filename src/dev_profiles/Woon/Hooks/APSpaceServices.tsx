@@ -21,7 +21,7 @@ const getServiceTicket = async (serviceUrl: string, username: string, password: 
     const svcReqLoc = svcTicketReq.headers.get('Location');
     if (svcReqLoc) {
       const svcData = await fetch(svcReqLoc, {
-        headers: { 'content-type': 'application/x-www-form-urlencoded' },
+        headers: { 'content-type': 'application/x-www-form-urlencoded', accept: 'application/json, text/plain, */*' },
         method: 'POST',
         body: service,
       });
@@ -51,7 +51,14 @@ const getStudentProfile = async (username: string, password: string) => {
   return StudentProfile.json();
 };
 
-export { getServiceTicket, getAPCardData, getStudentProfile };
+const getStudentImage = async (username: string, password: string) => {
+  const serviceUrl = 'https://api.apiit.edu.my/student/photo';
+  const serviceTicket = await getServiceTicket(serviceUrl, username, password);
+  const StudentProfile = await fetch(`${serviceUrl}?ticket=${serviceTicket}`);
+  return StudentProfile.json();
+};
+
+export { getAPCardData, getStudentProfile, getStudentImage };
 
 // Service URL
 // https://api.apiit.edu.my/apcard/?ticket=ST-2425255-ROrIOn6GOjwg1eboAcM4rIN5ItUip-172-33-0-27

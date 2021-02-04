@@ -6,8 +6,8 @@ import Hero from './Hero';
 import NavBar from './NavBar';
 
 export const navItems = [
-  { name: 'Home', hash: 'hero', color: 'brand.persian-green' },
-  { name: 'Dev Pages', hash: 'dev-profiles', color: 'brand.yellow-crayola' },
+  { name: 'Home', hash: 'hero', color: 'brand.400' },
+  { name: 'Dev Pages', hash: 'dev-profiles', color: 'brand.200' },
   { name: 'About', hash: 'about', color: 'brand.charcoal-black' },
 ];
 
@@ -34,7 +34,7 @@ function getOffset(el: Element | null) {
 }
 
 const HomePage = () => {
-  const [currentColor, setCurrentColor] = useState('brand.persian-green');
+  const [currentColor, setCurrentColor] = useState('brand.400');
   const currentNav = useRef(0);
   const prevTimestamp = useRef(0);
 

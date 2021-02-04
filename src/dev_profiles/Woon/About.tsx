@@ -18,7 +18,7 @@ const About = () => {
           interest in making things that will <b>help people</b>.
         </Text>
         <Text color="white" fontSize={theme.fontSizes['2xl']} marginBottom={theme.space[12]}>
-          Over the years, since I was 11, I have been learning all sorts of languages and technologies, my first being
+          Over the years, since I was 11, I have been learning all sorts of languages and technologies, my first being{' '}
           <b>Visual Basic .Net</b> (VB.Net), follow by <b>C#</b> and <b>C++</b>. After that I touched on Game
           Development with <b>Unity</b> and simple web development with <b>HTML, CSS and JavaScript</b>. I realised that
           once you have grasped and understood one programming language, it is the same anywhere else, only with
@@ -33,7 +33,7 @@ const About = () => {
           For once, I have been overwhelmed by the sheer amount of black boxes of Modern Web Development. The sheer
           amount of libraries that I try to understand but couldn't. One day I realised that I did not have to. I just
           need to use it well enough for my needs. Indeed, Modern Web Development has changed my way of thinking, to
-          better or worse, I do not know. But one thing I am sure about is that Web Development is more fun that
+          better or worse, I do not know. But one thing I am sure about is that Web Development is more fun than
           Software Development.
         </Text>
       </Container>

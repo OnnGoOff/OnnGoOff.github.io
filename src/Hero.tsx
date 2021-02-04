@@ -10,7 +10,7 @@ const Hero = () => {
             <Heading as="h1" fontSize={theme.fontSizes['9xl']} color="white">
               Onn Go Off
             </Heading>
-            <Text fontSize={['4xl', '6xl']} color="brand.charcoal-black" textTransform="capitalize">
+            <Text fontSize={['4xl', '6xl']} color="brand.50" textTransform="capitalize">
               ya yeet skrrt skrrt
             </Text>
           </Container>

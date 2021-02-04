@@ -30,7 +30,8 @@ const NavigationGroup = () => {
       <Button
         key={i}
         w={theme.sizes[10]}
-        bgColor={page === i + 1 ? 'brand.persian-green' : 'white'}
+        bgColor={page === i + 1 ? 'brand.700' : 'white'}
+        color={page === i + 1 ? 'brand.50' : 'unset'}
         h={theme.sizes[10]}
         borderRadius={theme.radii.none}
         onClick={() => {
@@ -61,7 +62,7 @@ const NavigationGroup = () => {
           value={perPage}
         >
           <SliderTrack>
-            <SliderFilledTrack bg="brand.persian-green" />
+            <SliderFilledTrack bg="brand.700" />
           </SliderTrack>
           <SliderThumb boxSize={6} />
         </Slider>

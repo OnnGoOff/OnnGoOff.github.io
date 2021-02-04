@@ -37,24 +37,18 @@ const Woon = () => {
   const woonMatch = useRouteMatch();
   return (
     <>
-      <Box minH="100vh" bgColor="brand.charcoal-black">
+      <Box minH="100vh" bgColor="brand.400">
         <Box
           height={[theme.sizes[16], theme.sizes[20]]}
-          bgGradient="linear(to-b, rgba(0, 0, 0, 0.5), transparent)"
+          bgColor="white"
           w={theme.sizes.full}
           h={theme.sizes[16]}
+          color="brand.charcoal-black"
           marginBottom={theme.space[8]}
-          paddingBottom={theme.space[2]}
         >
           <Center h={theme.sizes.full}>
             <Grid autoFlow="column" w={[theme.sizes.full, 'initial']} templateColumns={['1fr 4fr', '3fr 1fr']}>
-              <ChakraLink
-                as="div"
-                mx={2}
-                color="white"
-                fontWeight={theme.fontWeights.semibold}
-                fontSize={theme.fontSizes.lg}
-              >
+              <ChakraLink as="div" mx={2} fontWeight={theme.fontWeights.semibold} fontSize={theme.fontSizes.lg}>
                 <Link to="/">
                   <Flex>
                     <ChevronLeftIcon w={8} h={8} />
@@ -67,7 +61,6 @@ const Woon = () => {
                   as="div"
                   fontSize={[theme.fontSizes.md, theme.fontSizes.lg]}
                   mx={2}
-                  color="white"
                   fontWeight={theme.fontWeights.semibold}
                 >
                   <Link to={woonMatch.url}>Home</Link>
@@ -76,7 +69,6 @@ const Woon = () => {
                   as="div"
                   fontSize={[theme.fontSizes.md, theme.fontSizes.lg]}
                   mx={2}
-                  color="white"
                   fontWeight={theme.fontWeights.semibold}
                 >
                   <Link to={`${woonMatch.url}/search`}>Student Search</Link>
@@ -85,7 +77,6 @@ const Woon = () => {
                   as="div"
                   fontSize={[theme.fontSizes.md, theme.fontSizes.lg]}
                   mx={2}
-                  color="white"
                   fontWeight={theme.fontWeights.semibold}
                 >
                   <Link to={`${woonMatch.url}/APCard`}>APCard Info</Link>
@@ -94,7 +85,6 @@ const Woon = () => {
                   as="div"
                   fontSize={[theme.fontSizes.md, theme.fontSizes.lg]}
                   mx={2}
-                  color="white"
                   fontWeight={theme.fontWeights.semibold}
                 >
                   <Link to={`${woonMatch.url}/about`}>About Me</Link>
