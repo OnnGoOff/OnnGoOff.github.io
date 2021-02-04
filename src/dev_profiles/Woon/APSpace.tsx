@@ -16,6 +16,7 @@ import {
   useTheme,
   OrderedList,
   ListItem,
+  Link,
 } from '@chakra-ui/react';
 import { getAPCardData, getStudentImage, getStudentProfile } from './Hooks/APSpaceServices';
 import StudentProfile from './Interfaces/StudentProfile';
@@ -37,6 +38,7 @@ const APSpace = () => {
   const brandTheme = useTheme();
   const [profile, setProfile] = useState<StudentProfile>();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [sortBy, setSortBy] = useState(0);
   const [photo, setPhoto] = useState<StudentPhoto>({ base64_photo: '', id: '' });
   const [isLoading, setIsLoading] = useState(false);
   const [isError, setIsError] = useState(false);
@@ -63,6 +65,10 @@ const APSpace = () => {
 
       setIsLoading(false);
     }
+  };
+
+  const handleSort = (sortBy: number) => {
+    setSortBy(sortBy);
   };
 
   const [show, setShow] = React.useState(false);
@@ -128,7 +134,7 @@ const APSpace = () => {
                   </Center>
                   <Text>Name: {profile.NAME}</Text>
                   <Text>Intake: {profile.INTAKE}</Text>
-                  <Text>Total Spent: RM {Math.abs(totalSpent).toFixed(2)}</Text>
+                  <Text fontWeight={theme.fontWeights.semibold}>Total Spent: RM {Math.abs(totalSpent).toFixed(2)}</Text>
                   <Text>IC/Passport Number: {profile.IC_PASSPORT_NO}</Text>
                   <Text>Country: {profile.COUNTRY}</Text>
                   <Text>Mentor: {profile.MENTOR_NAME}</Text>
@@ -159,9 +165,27 @@ const APSpace = () => {
     } else {
       return (
         <DetailSection>
-          <Heading size="md" textDecor="underline">
-            Top bought items:
-          </Heading>
+          <Box d="flex" justifyContent="space-between">
+            <Heading d="inline" size="md" textDecor="underline">
+              Top bought items:
+            </Heading>
+            <Box d="inline" size="md" textDecor="underline">
+              <Link
+                mx={2}
+                fontWeight={sortBy === 0 ? theme.fontWeights.semibold : theme.fontWeights.normal}
+                onClick={() => handleSort(0)}
+              >
+                Sort By Quantity
+              </Link>
+              <Link
+                mx={2}
+                fontWeight={sortBy === 1 ? theme.fontWeights.semibold : theme.fontWeights.normal}
+                onClick={() => handleSort(1)}
+              >
+                Sort By Subtotal
+              </Link>
+            </Box>
+          </Box>
           {(() => {
             let items: { hash: number; itemName: string; itemPrice: number; count: number }[] = [];
             if (transactions.length > 0) {
@@ -190,7 +214,13 @@ const APSpace = () => {
                 }
               }
               items.sort((a, b) => {
-                return b.count - a.count;
+                if (sortBy === 0) {
+                  return b.count - a.count;
+                } else if (sortBy === 1) {
+                  return a.count * a.itemPrice - b.count * b.itemPrice;
+                } else {
+                  return b.count - a.count;
+                }
               });
               return (
                 <>
