@@ -1,3 +1,3 @@
 # Onn Go Off
 
-Hello ya yeet skrrt
+![Build OnnGoOff](https://github.com/OnnGoOff/OnnGoOff.github.io/workflows/Build%20OnnGoOff/badge.svg)
