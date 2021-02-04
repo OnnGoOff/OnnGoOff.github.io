@@ -1,6 +1,6 @@
 # This is a basic workflow to help you get started with Actions
 
-name: CI
+name: Build OnnGoOff
 
 # Controls when the action will run. 
 on:
@@ -24,7 +24,7 @@ jobs:
           node-version: '14'
           
       - name: Install dependencies
-        run: yarn
+        run: yarn --frozen-lockfile
         
       - name: Build react app
         run: yarn build
