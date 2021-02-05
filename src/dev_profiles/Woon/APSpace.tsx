@@ -14,9 +14,8 @@ import {
   Image,
   Flex,
   useTheme,
-  OrderedList,
-  ListItem,
   Link,
+  VStack,
 } from '@chakra-ui/react';
 import { getAPCardData, getStudentImage, getStudentProfile } from './Hooks/APSpaceServices';
 import StudentProfile from './Interfaces/StudentProfile';
@@ -34,15 +33,63 @@ const hashCode = (string: string) => {
   return hash;
 };
 
+const LoadingSection = () => {
+  return (
+    <DetailSection>
+      <Center w={theme.sizes.full}>
+        <Spinner thickness="5px" size="xl" color="brand.400" />
+      </Center>
+    </DetailSection>
+  );
+};
+
+const DetailSection = ({ children }: { children: React.ReactNode }) => {
+  return (
+    <Box
+      borderRadius={theme.radii.lg}
+      p={6}
+      w={theme.sizes.full}
+      my={theme.space[6]}
+      mx={[theme.space[2], theme.space[6]]}
+      bgColor="white"
+    >
+      {children}
+    </Box>
+  );
+};
+
 const APSpace = () => {
   const brandTheme = useTheme();
+
+  /**
+   * Student data
+   */
   const [profile, setProfile] = useState<StudentProfile>();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [sortBy, setSortBy] = useState(0);
   const [photo, setPhoto] = useState<StudentPhoto>({ base64_photo: '', id: '' });
+
+  /**
+   * Feedback from querying services
+   */
   const [isLoading, setIsLoading] = useState(false);
   const [isError, setIsError] = useState(false);
 
+  /**
+   * Sorting stuff,
+   * 0 - by count
+   * 1 - by subtotal
+   */
+  const [sortBy, setSortBy] = useState(1);
+
+  /**
+   * Pagination stuff
+   */
+  const [perPage] = useState(10);
+  const [page, setPage] = useState(1);
+
+  /**
+   * Username and password inputs
+   */
   const username = React.createRef<HTMLInputElement>();
   const password = React.createRef<HTMLInputElement>();
 
@@ -74,51 +121,29 @@ const APSpace = () => {
   const [show, setShow] = React.useState(false);
   const handleClick = () => setShow(!show);
 
-  const LoadingSection = () => {
-    return (
-      <DetailSection>
-        <Center w={theme.sizes.full}>
-          <Spinner thickness="5px" size="xl" color="brand.400" />
-        </Center>
-      </DetailSection>
-    );
-  };
-
-  const DetailSection = ({ children }: { children: React.ReactNode }) => {
-    return (
-      <Box borderRadius={theme.radii.lg} p={6} w={theme.sizes.full} m={theme.space[6]} bgColor="white">
-        {children}
-      </Box>
-    );
-  };
-
   const StudentData = () => {
     let totalSpent = 0;
-    if (transactions.length > 0) {
-      transactions.forEach((txn) => {
-        if (txn.SpendVal < 0) {
-          totalSpent += txn.SpendVal;
-        }
-      });
-    }
+    const purchases = transactions.filter((txn) => txn.SpendVal < 0);
+    purchases.forEach((txn) => {
+      totalSpent += txn.SpendVal;
+    });
     if (isError) {
       return (
-        <Box borderRadius={theme.radii.lg} p={6} w={theme.sizes.full} m={theme.space[6]} color="red" bgColor="white">
-          <Center w={theme.sizes.full}>
-            <Text fontSize={theme.fontSizes.lg} fontWeight={theme.fontWeights.semibold}>
-              Error occured! Are you sure your credentials are correct?
-            </Text>
-          </Center>
-        </Box>
+        <DetailSection>
+          <Text
+            textAlign="center"
+            fontSize={[theme.fontSizes.lg, theme.fontSizes['2xl']]}
+            fontWeight={theme.fontWeights.semibold}
+          >
+            Error occured! Are you sure your credentials are correct?
+          </Text>
+        </DetailSection>
       );
     } else if (isLoading) {
       return <LoadingSection />;
     } else {
       return (
         <DetailSection>
-          <Heading size="md" textDecor="underline">
-            Student Details
-          </Heading>
           {(() => {
             if (profile) {
               return (
@@ -147,9 +172,9 @@ const APSpace = () => {
             } else {
               return (
                 <>
-                  <Center w={theme.sizes.full}>
-                    <Heading size="xl">Login to view your data.</Heading>
-                  </Center>
+                  <Heading textAlign="center" fontSize={['md', '4xl']}>
+                    Login to view your data.
+                  </Heading>
                 </>
               );
             }
@@ -159,58 +184,115 @@ const APSpace = () => {
     }
   };
 
+  interface TransactionStatistic {
+    stat: string;
+    statName: string;
+    statInfo?: string;
+  }
+  interface StatCardsProps {
+    transactionStatistics: TransactionStatistic[];
+  }
+  const StatCards = ({ transactionStatistics }: StatCardsProps) => {
+    return (
+      <Flex justifyContent="space-around" flexWrap="wrap">
+        {transactionStatistics.map((stat) => {
+          return (
+            <Box
+              key={stat.statName}
+              m={2}
+              flex={['1 0 8rem', '1 0 12rem']}
+              h={['6rem', '8rem']}
+              boxShadow={theme.shadows.md}
+              borderRadius={theme.radii.lg}
+              bgColor="brand.700"
+            >
+              <Center h={theme.sizes.full} flexDir="column" color="white">
+                <Text textAlign="center" fontSize={[theme.fontSizes.xl, theme.fontSizes['4xl']]}>
+                  {stat.stat}
+                </Text>
+                <Text textAlign="center" fontSize={[theme.fontSizes.xs, theme.fontSizes.md]}>
+                  {stat.statName}
+                  {stat.statInfo ? <Text fontWeight={theme.fontWeights.semibold}>{stat.statInfo}</Text> : ''}
+                </Text>
+              </Center>
+            </Box>
+          );
+        })}
+      </Flex>
+    );
+  };
+
+  interface ItemListItem {
+    hash: number;
+    itemName: string;
+    itemPrice: number;
+    count: number;
+  }
+  interface ItemListProps {
+    items: ItemListItem[];
+  }
+  const ItemList = ({ items }: ItemListProps) => {
+    return (
+      <VStack>
+        {items.slice((page - 1) * perPage, perPage * page).map((item, ix) => {
+          return (
+            <Box key={ix}>
+              <Text fontSize={theme.fontSizes.md} d="inline" fontWeight={theme.fontWeights.semibold}>
+                (RM {Math.abs(item.itemPrice).toFixed(2)}){' '}
+              </Text>
+              <Text fontSize={theme.fontSizes.xl} d="inline">
+                {item.itemName}
+              </Text>
+              <Text d="inline"> x </Text>
+              <Text fontSize={theme.fontSizes.md} d="inline">
+                {item.count}
+              </Text>
+              <Text fontSize={theme.fontSizes.xl} d="inline" fontWeight={theme.fontWeights.semibold}>
+                {' '}
+                (RM {Math.abs(item.count * item.itemPrice).toFixed(2)})
+              </Text>
+            </Box>
+          );
+        })}
+      </VStack>
+    );
+  };
+
   const TransactionStats = () => {
+    const handlePageChange = (pageNumber: number) => {
+      setPage(pageNumber);
+    };
+
     if (isLoading) {
       return <LoadingSection />;
     } else {
       return (
         <DetailSection>
-          <Box d="flex" justifyContent="space-between">
-            <Heading d="inline" size="md" textDecor="underline">
-              Top bought items:
-            </Heading>
-            <Box d="inline" size="md" textDecor="underline">
-              <Link
-                mx={2}
-                fontWeight={sortBy === 0 ? theme.fontWeights.semibold : theme.fontWeights.normal}
-                onClick={() => handleSort(0)}
-              >
-                Sort By Quantity
-              </Link>
-              <Link
-                mx={2}
-                fontWeight={sortBy === 1 ? theme.fontWeights.semibold : theme.fontWeights.normal}
-                onClick={() => handleSort(1)}
-              >
-                Sort By Subtotal
-              </Link>
-            </Box>
-          </Box>
           {(() => {
-            let items: { hash: number; itemName: string; itemPrice: number; count: number }[] = [];
-            if (transactions.length > 0) {
-              for (let i = 0; i < transactions.length; i++) {
-                if (transactions[i].SpendVal < 0) {
-                  let foundIx = -1;
-                  if (
-                    items.some((item, ix) => {
-                      if (item.hash === hashCode(transactions[i].ItemName)) {
-                        foundIx = ix;
-                        return true;
-                      } else {
-                        return false;
-                      }
-                    })
-                  ) {
-                    items[foundIx].count += 1;
-                  } else {
-                    items.push({
-                      count: 1,
-                      hash: hashCode(transactions[i].ItemName),
-                      itemName: transactions[i].ItemName,
-                      itemPrice: transactions[i].SpendVal,
-                    });
-                  }
+            const purchases = transactions.filter((txn) => txn.SpendVal < 0);
+            let items: ItemListItem[] = [];
+            if (purchases.length > 0) {
+              const remainingBalance = transactions[0].Balance;
+              for (let i = 0; i < purchases.length; i++) {
+                let foundIx = -1;
+                if (
+                  items.some((item, ix) => {
+                    if (item.hash === hashCode(purchases[i].ItemName)) {
+                      foundIx = ix;
+                      return true;
+                    } else {
+                      return false;
+                    }
+                  })
+                ) {
+                  items[foundIx].count += 1;
+                } else {
+                  items.push({
+                    count: 1,
+                    hash: hashCode(purchases[i].ItemName),
+                    itemName: purchases[i].ItemName,
+                    itemPrice: purchases[i].SpendVal,
+                  });
                 }
               }
               items.sort((a, b) => {
@@ -222,33 +304,118 @@ const APSpace = () => {
                   return b.count - a.count;
                 }
               });
+
+              const mostExpensiveItem = purchases.reduce((prev, curr) => {
+                if (prev.SpendVal < curr.SpendVal) {
+                  return prev;
+                } else {
+                  return curr;
+                }
+              });
+
+              const mostBoughtItem = items.reduce((prev, curr) => {
+                if (prev.count > curr.count) {
+                  return prev;
+                } else {
+                  return curr;
+                }
+              });
+
+              const mostSpentItem = items.reduce((prev, curr) => {
+                if (prev.itemPrice * prev.count < curr.itemPrice * curr.count) {
+                  return prev;
+                } else {
+                  return curr;
+                }
+              });
+
+              const transactionStatistics: TransactionStatistic[] = [
+                {
+                  stat: purchases.length.toString(),
+                  statName: 'Total Items Purchased',
+                },
+                {
+                  stat: items.length.toString(),
+                  statName: 'Unique Purchases',
+                },
+                {
+                  stat: `RM ${Math.abs(mostExpensiveItem.SpendVal).toFixed(2)}`,
+                  statName: 'Most Expensive Item:',
+                  statInfo: mostExpensiveItem.ItemName,
+                },
+                {
+                  stat: mostBoughtItem.count.toString(),
+                  statName: 'Most Bought Item:',
+                  statInfo: mostBoughtItem.itemName,
+                },
+                {
+                  stat: `RM ${Math.abs(mostSpentItem.itemPrice * mostSpentItem.count).toFixed(2)}`,
+                  statName: 'Most Spent on an Item:',
+                  statInfo: mostSpentItem.itemName,
+                },
+                {
+                  stat: `RM ${remainingBalance.toFixed(2)}`,
+                  statName: 'Remaining Balance',
+                },
+              ];
+
+              const paginationLinks = [];
+              for (let i = 0; i < Math.ceil(items.length / perPage); i++) {
+                paginationLinks.push(
+                  <Button
+                    key={i}
+                    w={theme.sizes[10]}
+                    bgColor={page === i + 1 ? 'brand.700' : 'white'}
+                    color={page === i + 1 ? 'brand.50' : 'unset'}
+                    h={theme.sizes[10]}
+                    borderRadius={theme.radii.none}
+                    onClick={() => {
+                      handlePageChange(i + 1);
+                    }}
+                  >
+                    {i + 1}
+                  </Button>
+                );
+              }
+
               return (
                 <>
-                  <OrderedList>
-                    {items.map((item, ix) => {
-                      return (
-                        <ListItem>
-                          <Text d="inline" isTruncated>
-                            {item.itemName} x{' '}
-                          </Text>
-                          <Text d="inline" fontWeight={theme.fontWeights.semibold}>
-                            {item.count} bought
-                          </Text>
-                          <Text d="inline" fontWeight={theme.fontWeights.semibold}>
-                            {' '}
-                            (RM {Math.abs(item.count * item.itemPrice).toFixed(2)})
-                          </Text>
-                        </ListItem>
-                      );
-                    })}
-                  </OrderedList>
+                  <StatCards transactionStatistics={transactionStatistics} />
+                  <Heading textAlign="center" textDecor="underline">
+                    Purchased Items
+                  </Heading>
+                  <Box textAlign="right">
+                    <Text d="inline">Sort By</Text>
+                    <Box d="inline" textDecor="underline">
+                      <Link
+                        mx={2}
+                        fontWeight={sortBy === 0 ? theme.fontWeights.semibold : theme.fontWeights.normal}
+                        onClick={() => handleSort(0)}
+                      >
+                        Quantity
+                      </Link>
+                      <Link
+                        mx={2}
+                        fontWeight={sortBy === 1 ? theme.fontWeights.semibold : theme.fontWeights.normal}
+                        onClick={() => handleSort(1)}
+                      >
+                        Subtotal
+                      </Link>
+                    </Box>
+                  </Box>
+                  <ItemList items={items} />
+                  <Center w={theme.sizes.full}>
+                    <Box my={theme.space[6]}>{paginationLinks}</Box>
+                  </Center>
                 </>
               );
             } else {
               return (
-                <Center w={theme.sizes.full}>
-                  <Heading size="xl">Login to view your transaction statistics.</Heading>
-                </Center>
+                <>
+                  <Heading textAlign="center" fontSize={['md', '4xl']}>
+                    Login to view your transaction statistics.
+                  </Heading>
+                </>
               );
             }
           })()}
@@ -257,51 +424,10 @@ const APSpace = () => {
     }
   };
 
-  //#region APCard Code
-  //  const APCardData = () => {
-  //    if (transactions.length > 0) {
-  //      if (isLoading) {
-  //        return <Spinner thickness="5px" size="xl" color="brand.400" />;
-  //      } else {
-  //        return (
-  //          <StatGroup maxW={theme.sizes.full}>
-  //            {transactions.map((txn, ix) => {
-  //              return (
-  //                <Box
-  //                  key={ix}
-  //                  bgColor="white"
-  //                  flex="1 1 21%"
-  //                  margin={2}
-  //                  p={2}
-  //                  borderRadius={theme.radii.lg}
-  //                  boxShadow={theme.shadows.md}
-  //                  px={theme.space[3]}
-  //                  maxW={theme.sizes.full}
-  //                >
-  //                  <Stat>
-  //                    <StatLabel>{txn.SpendDate}</StatLabel>
-  //                    <StatNumber isTruncated>{txn.ItemName}</StatNumber>
-  //                    <StatHelpText>
-  //                      {txn.SpendVal < 0 ? <StatArrow type="decrease" /> : <StatArrow type="increase" />}
-  //                      RM {txn.SpendVal.toFixed(2)}
-  //                    </StatHelpText>
-  //                  </Stat>
-  //                </Box>
-  //              );
-  //            })}
-  //          </StatGroup>
-  //        );
-  //      }
-  //    } else {
-  //      return <Heading size="2xl">Please Log-in to View Data.</Heading>;
-  //    }
-  //  };
-  //#endregion
-
   return (
     <>
       <Container maxW={theme.sizes['6xl']} centerContent>
-        <Heading size="2xl" color="white" mb={theme.space[6]}>
+        <Heading textAlign="center" size="2xl" color="white" mb={theme.space[6]}>
           View Total Spent In APCard
         </Heading>
         <Box maxW={theme.sizes.xl}>
@@ -326,11 +452,10 @@ const APSpace = () => {
             Check Data
           </Button>
         </Box>
-        <Flex flexWrap="wrap" shrink={1} grow={1}>
+        <Flex maxW={theme.sizes.full} flexWrap="wrap" shrink={1} grow={1}>
           <StudentData />
           <TransactionStats />
         </Flex>
-        <Box>{/* <APCardData /> */}</Box>
       </Container>
     </>
   );

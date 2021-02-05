@@ -1,4 +1,4 @@
-import { Box, theme, Center, Flex, Text, Link as ChakraLink, Grid } from '@chakra-ui/react';
+import { Box, theme, Center, Flex, Text, Link as ChakraLink } from '@chakra-ui/react';
 import React from 'react';
 import { Switch, Route, Link, useRouteMatch } from 'react-router-dom';
 import { ChevronLeftIcon } from '@chakra-ui/icons';
@@ -35,62 +35,51 @@ export const WoonPageContext = React.createContext<WoonPageContextProps>({
 
 const Woon = () => {
   const woonMatch = useRouteMatch();
+
+  const navLinks = [
+    { link: woonMatch.url, displayName: 'Home' },
+    { link: `${woonMatch.url}/search`, displayName: 'Student Search' },
+    { link: `${woonMatch.url}/apcard`, displayName: 'APCard Info' },
+    { link: `${woonMatch.url}/about`, displayName: 'About Me' },
+  ];
+
   return (
     <>
       <Box minH="100vh" bgColor="brand.400">
         <Box
-          height={[theme.sizes[16], theme.sizes[20]]}
           bgColor="white"
           w={theme.sizes.full}
-          h={theme.sizes[16]}
+          h={[theme.sizes[12], theme.sizes[20]]}
           color="brand.charcoal-black"
           marginBottom={theme.space[8]}
         >
           <Center h={theme.sizes.full}>
-            <Grid autoFlow="column" w={[theme.sizes.full, 'initial']} templateColumns={['1fr 4fr', '3fr 1fr']}>
+            <Flex w={theme.sizes.container} justifyContent="space-between">
               <ChakraLink as="div" mx={2} fontWeight={theme.fontWeights.semibold} fontSize={theme.fontSizes.lg}>
                 <Link to="/">
                   <Flex>
-                    <ChevronLeftIcon w={8} h={8} />
+                    <ChevronLeftIcon w={[6, 8]} h={[6, 8]} />
                     <Text d={['none', 'initial']}>Back to Home Page</Text>
                   </Flex>
                 </Link>
               </ChakraLink>
               <Flex>
-                <ChakraLink
-                  as="div"
-                  fontSize={[theme.fontSizes.md, theme.fontSizes.lg]}
-                  mx={2}
-                  fontWeight={theme.fontWeights.semibold}
-                >
-                  <Link to={woonMatch.url}>Home</Link>
-                </ChakraLink>
-                <ChakraLink
-                  as="div"
-                  fontSize={[theme.fontSizes.md, theme.fontSizes.lg]}
-                  mx={2}
-                  fontWeight={theme.fontWeights.semibold}
-                >
-                  <Link to={`${woonMatch.url}/search`}>Student Search</Link>
-                </ChakraLink>
-                <ChakraLink
-                  as="div"
-                  fontSize={[theme.fontSizes.md, theme.fontSizes.lg]}
-                  mx={2}
-                  fontWeight={theme.fontWeights.semibold}
-                >
-                  <Link to={`${woonMatch.url}/APCard`}>APCard Info</Link>
-                </ChakraLink>
-                <ChakraLink
-                  as="div"
-                  fontSize={[theme.fontSizes.md, theme.fontSizes.lg]}
-                  mx={2}
-                  fontWeight={theme.fontWeights.semibold}
-                >
-                  <Link to={`${woonMatch.url}/about`}>About Me</Link>
-                </ChakraLink>
+                {navLinks.map((navLink) => {
+                  return (
+                    <ChakraLink
+                      key={navLink.displayName}
+                      textAlign="center"
+                      as="div"
+                      fontSize={[theme.fontSizes.sm, theme.fontSizes.lg]}
+                      mx={2}
+                      fontWeight={theme.fontWeights.semibold}
+                    >
+                      <Link to={navLink.link}>{navLink.displayName}</Link>
+                    </ChakraLink>
+                  );
+                })}
               </Flex>
-            </Grid>
+            </Flex>
           </Center>
         </Box>
 
@@ -101,7 +90,7 @@ const Woon = () => {
           <Route path={`${woonMatch.path}/search`}>
             <Search />
           </Route>
-          <Route path={`${woonMatch.path}/APCard`}>
+          <Route path={`${woonMatch.path}/apcard`}>
             <APSpace />
           </Route>
           <Route path={`${woonMatch.path}/about`}>
