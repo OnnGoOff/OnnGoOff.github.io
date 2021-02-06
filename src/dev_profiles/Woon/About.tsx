@@ -1,7 +1,13 @@
 import { Container, Divider, Heading, Text, theme } from '@chakra-ui/react';
-import React from 'react';
+import React, { useContext, useEffect } from 'react';
+import { WoonPageContext } from '.';
 
 const About = () => {
+  const { setBackgroundColor } = useContext(WoonPageContext);
+  useEffect(() => {
+    setBackgroundColor('brand.charcoal-black');
+  }, [setBackgroundColor]);
+
   return (
     <>
       <Container centerContent maxW={theme.sizes['6xl']}>

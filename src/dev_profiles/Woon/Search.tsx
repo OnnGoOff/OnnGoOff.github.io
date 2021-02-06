@@ -16,11 +16,37 @@ import {
   Button,
 } from '@chakra-ui/react';
 import React, { ChangeEvent, useContext, useEffect, useRef, useState } from 'react';
+import { WoonPageContext } from '.';
 import StudentData from './data';
-import { WoonPageContext, StudentInformation } from './index';
+
+export interface SearchPageContextProps {
+  students: StudentInformation[] | undefined;
+  handleSliderChange: (value: number) => void;
+  setPage: (page: number) => void;
+  page: number;
+  perPage: number;
+}
+
+export interface StudentInformation {
+  name: string;
+  tp: string;
+  tutorial: number;
+}
+
+export const SearchPageContext = React.createContext<SearchPageContextProps>({
+  handleSliderChange: (value: number) => {
+    console.warn('No slider change handler');
+  },
+  setPage: (page: number) => {
+    console.warn("No 'page' setter.");
+  },
+  page: 1,
+  perPage: 30,
+  students: [],
+});
 
 const NavigationGroup = () => {
-  const { students, perPage, setPage, page, handleSliderChange } = useContext(WoonPageContext);
+  const { students, perPage, setPage, page, handleSliderChange } = useContext(SearchPageContext);
 
   const numberOfStudents = students?.length || 1;
 
@@ -73,6 +99,8 @@ const NavigationGroup = () => {
 };
 
 const Search = () => {
+  const { setBackgroundColor } = useContext(WoonPageContext);
+
   const [students, setStudents] = useState<StudentInformation[]>();
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(24);
@@ -114,19 +142,19 @@ const Search = () => {
       setPage(1);
     }
 
-    console.log(newPage, page);
     setStudents(newStudents);
   };
 
   useEffect(() => {
     setStudents(StudentData);
-  }, []);
+    setBackgroundColor('brand.400');
+  }, [setBackgroundColor]);
 
   const handleSliderChange = (value: number) => {
     setPerPage(value);
   };
   return (
-    <WoonPageContext.Provider value={{ students, handleSliderChange, page, perPage, setPage }}>
+    <SearchPageContext.Provider value={{ students, handleSliderChange, page, perPage, setPage }}>
       <Container centerContent maxW={theme.sizes['6xl']}>
         <Heading
           as="h1"
@@ -171,7 +199,7 @@ const Search = () => {
         </StatGroup>
         <NavigationGroup />
       </Container>
-    </WoonPageContext.Provider>
+    </SearchPageContext.Provider>
   );
 };
 

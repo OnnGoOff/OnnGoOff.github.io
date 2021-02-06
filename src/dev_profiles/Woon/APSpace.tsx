@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import {
   Text,
   Box,
@@ -8,65 +8,61 @@ import {
   InputGroup,
   InputRightElement,
   theme,
-  Spinner,
   Center,
   Heading,
-  Image,
   Flex,
   useTheme,
   Link,
-  VStack,
+  Divider,
 } from '@chakra-ui/react';
-import { getAPCardData, getStudentImage, getStudentProfile } from './Hooks/APSpaceServices';
-import StudentProfile from './Interfaces/StudentProfile';
-import Transaction from './Interfaces/Transaction';
-import StudentPhoto from './Interfaces/StudentPhoto';
+import { getAPCardData, getStudentImage, getStudentProfile } from './hooks/APSpaceServices';
+import StudentProfile from './interfaces/StudentProfile';
+import Transaction from './interfaces/Transaction';
+import StudentPhoto from './interfaces/StudentPhoto';
 
-const hashCode = (string: string) => {
-  var hash = 0;
-  if (string.length === 0) return hash;
-  for (let i = 0; i < string.length; i++) {
-    let char = string.charCodeAt(i);
-    hash = (hash << 5) - hash + char;
-    hash = hash & hash;
-  }
-  return hash;
-};
+import ItemList from './components/ItemList';
+import DetailSection from './components/DetailSection';
+import LoadingSection from './components/LoadingSection';
+import StatCards from './components/StatCards';
+import StudentDataSection from './components/StudentDataSection';
 
-const LoadingSection = () => {
-  return (
-    <DetailSection>
-      <Center w={theme.sizes.full}>
-        <Spinner thickness="5px" size="xl" color="brand.400" />
-      </Center>
-    </DetailSection>
-  );
-};
+import hashCode from './utils/hashCode';
+import { CloseIcon } from '@chakra-ui/icons';
+import { WoonPageContext } from '.';
 
-const DetailSection = ({ children }: { children: React.ReactNode }) => {
-  return (
-    <Box
-      borderRadius={theme.radii.lg}
-      p={6}
-      w={theme.sizes.full}
-      my={theme.space[6]}
-      mx={[theme.space[2], theme.space[6]]}
-      bgColor="white"
-    >
-      {children}
-    </Box>
-  );
-};
+export interface ItemListItem {
+  rank: number;
+  hash: number;
+  itemName: string;
+  itemPrice: number;
+  count: number;
+}
+
+export interface TransactionStatistic {
+  stat: string;
+  statName: string;
+  statInfo?: string;
+}
 
 const APSpace = () => {
+  //#region Declarations
   const brandTheme = useTheme();
+
+  /**
+   * Getting and using the WoonPageContext for the
+   * setBackgroundColor function
+   */
+  const { setBackgroundColor } = useContext(WoonPageContext);
+  useEffect(() => {
+    setBackgroundColor('brand.400');
+  }, [setBackgroundColor]);
 
   /**
    * Student data
    */
   const [profile, setProfile] = useState<StudentProfile>();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [photo, setPhoto] = useState<StudentPhoto>({ base64_photo: '', id: '' });
+  const [photo, setPhoto] = useState<StudentPhoto>();
 
   /**
    * Feedback from querying services
@@ -84,7 +80,7 @@ const APSpace = () => {
   /**
    * Pagination stuff
    */
-  const [perPage] = useState(10);
+  const [perPage] = useState(12);
   const [page, setPage] = useState(1);
 
   /**
@@ -109,7 +105,6 @@ const APSpace = () => {
       } catch (error) {
         setIsError(true);
       }
-
       setIsLoading(false);
     }
   };
@@ -120,13 +115,9 @@ const APSpace = () => {
 
   const [show, setShow] = React.useState(false);
   const handleClick = () => setShow(!show);
+  //#endregion
 
   const StudentData = () => {
-    let totalSpent = 0;
-    const purchases = transactions.filter((txn) => txn.SpendVal < 0);
-    purchases.forEach((txn) => {
-      totalSpent += txn.SpendVal;
-    });
     if (isError) {
       return (
         <DetailSection>
@@ -139,225 +130,81 @@ const APSpace = () => {
           </Text>
         </DetailSection>
       );
-    } else if (isLoading) {
-      return <LoadingSection />;
     } else {
       return (
         <DetailSection>
-          {(() => {
-            if (profile) {
-              return (
-                <>
-                  <Center w={theme.sizes.full}>
-                    <Image
-                      borderRadius={theme.radii.lg}
-                      boxSize="200px"
-                      fit="cover"
-                      src={`data:image/jpg;base64,${photo.base64_photo}`}
-                      alt={profile.NAME}
-                    />
-                  </Center>
-                  <Text>Name: {profile.NAME}</Text>
-                  <Text>Intake: {profile.INTAKE}</Text>
-                  <Text fontWeight={theme.fontWeights.semibold}>Total Spent: RM {Math.abs(totalSpent).toFixed(2)}</Text>
-                  <Text>IC/Passport Number: {profile.IC_PASSPORT_NO}</Text>
-                  <Text>Country: {profile.COUNTRY}</Text>
-                  <Text>Mentor: {profile.MENTOR_NAME}</Text>
-                  <Text>Programme Leader: {profile.PL_NAME}</Text>
-                  <Text>Programme: {profile.PROGRAMME}</Text>
-                  <Text>Email: {profile.STUDENT_EMAIL}</Text>
-                  <Text>TP Number: {profile.STUDENT_NUMBER}</Text>
-                </>
-              );
-            } else {
-              return (
-                <>
-                  <Heading textAlign="center" fontSize={['md', '4xl']}>
-                    Login to view your data.
-                  </Heading>
-                </>
-              );
-            }
-          })()}
+          <StudentDataSection photo={photo} profile={profile} isLoading={isLoading} />
         </DetailSection>
       );
     }
   };
 
-  interface TransactionStatistic {
-    stat: string;
-    statName: string;
-    statInfo?: string;
-  }
-  interface StatCardsProps {
-    transactionStatistics: TransactionStatistic[];
-  }
-  const StatCards = ({ transactionStatistics }: StatCardsProps) => {
-    return (
-      <Flex justifyContent="space-around" flexWrap="wrap">
-        {transactionStatistics.map((stat) => {
-          return (
-            <Box
-              key={stat.statName}
-              m={2}
-              flex={['1 0 8rem', '1 0 12rem']}
-              h={['6rem', '8rem']}
-              boxShadow={theme.shadows.md}
-              borderRadius={theme.radii.lg}
-              bgColor="brand.700"
-            >
-              <Center h={theme.sizes.full} flexDir="column" color="white">
-                <Text textAlign="center" fontSize={[theme.fontSizes.xl, theme.fontSizes['4xl']]}>
-                  {stat.stat}
-                </Text>
-                <Text textAlign="center" fontSize={[theme.fontSizes.xs, theme.fontSizes.md]}>
-                  {stat.statName}
-                  {stat.statInfo ? <Text fontWeight={theme.fontWeights.semibold}>{stat.statInfo}</Text> : ''}
-                </Text>
-              </Center>
-            </Box>
-          );
-        })}
-      </Flex>
-    );
-  };
-
-  interface ItemListItem {
-    hash: number;
-    itemName: string;
-    itemPrice: number;
-    count: number;
-  }
-  interface ItemListProps {
-    items: ItemListItem[];
-  }
-  const ItemList = ({ items }: ItemListProps) => {
-    return (
-      <VStack>
-        {items.slice((page - 1) * perPage, perPage * page).map((item, ix) => {
-          return (
-            <Box key={ix}>
-              <Text fontSize={theme.fontSizes.md} d="inline" fontWeight={theme.fontWeights.semibold}>
-                (RM {Math.abs(item.itemPrice).toFixed(2)}){' '}
-              </Text>
-              <Text fontSize={theme.fontSizes.xl} d="inline">
-                {item.itemName}
-              </Text>
-              <Text d="inline"> x </Text>
-              <Text fontSize={theme.fontSizes.md} d="inline">
-                {item.count}
-              </Text>
-              <Text fontSize={theme.fontSizes.xl} d="inline" fontWeight={theme.fontWeights.semibold}>
-                {' '}
-                (RM {Math.abs(item.count * item.itemPrice).toFixed(2)})
-              </Text>
-            </Box>
-          );
-        })}
-      </VStack>
-    );
-  };
-
   const TransactionStats = () => {
+    const sortAndRank = (purchases: Transaction[]) => {
+      let items: ItemListItem[] = [];
+      for (let i = 0; i < purchases.length; i++) {
+        let foundIx = -1;
+        if (
+          items.some((item, ix) => {
+            if (item.hash === hashCode(purchases[i].ItemName)) {
+              foundIx = ix;
+              return true;
+            } else {
+              return false;
+            }
+          })
+        ) {
+          items[foundIx].count += 1;
+        } else {
+          items.push({
+            rank: i + 1,
+            count: 1,
+            hash: hashCode(purchases[i].ItemName),
+            itemName: purchases[i].ItemName,
+            itemPrice: purchases[i].SpendVal,
+          });
+        }
+      }
+
+      items.sort((a, b) => {
+        if (sortBy === 0) {
+          return b.count - a.count;
+        } else if (sortBy === 1) {
+          return a.count * a.itemPrice - b.count * b.itemPrice;
+        } else {
+          return b.count - a.count;
+        }
+      });
+
+      for (let i = 0; i < items.length; i++) {
+        items[i].rank = i + 1;
+      }
+
+      return items;
+    };
+
     const handlePageChange = (pageNumber: number) => {
       setPage(pageNumber);
     };
 
     if (isLoading) {
       return <LoadingSection />;
+    } else if (isError) {
+      return (
+        <DetailSection>
+          <Center>
+            <CloseIcon boxSize={16} color="red.500" />
+          </Center>
+        </DetailSection>
+      );
     } else {
       return (
         <DetailSection>
           {(() => {
-            const purchases = transactions.filter((txn) => txn.SpendVal < 0);
-            let items: ItemListItem[] = [];
-            if (purchases.length > 0) {
-              const remainingBalance = transactions[0].Balance;
-              for (let i = 0; i < purchases.length; i++) {
-                let foundIx = -1;
-                if (
-                  items.some((item, ix) => {
-                    if (item.hash === hashCode(purchases[i].ItemName)) {
-                      foundIx = ix;
-                      return true;
-                    } else {
-                      return false;
-                    }
-                  })
-                ) {
-                  items[foundIx].count += 1;
-                } else {
-                  items.push({
-                    count: 1,
-                    hash: hashCode(purchases[i].ItemName),
-                    itemName: purchases[i].ItemName,
-                    itemPrice: purchases[i].SpendVal,
-                  });
-                }
-              }
-              items.sort((a, b) => {
-                if (sortBy === 0) {
-                  return b.count - a.count;
-                } else if (sortBy === 1) {
-                  return a.count * a.itemPrice - b.count * b.itemPrice;
-                } else {
-                  return b.count - a.count;
-                }
-              });
+            if (transactions.length > 0) {
+              const purchases = transactions.filter((txn) => txn.SpendVal < 0);
 
-              const mostExpensiveItem = purchases.reduce((prev, curr) => {
-                if (prev.SpendVal < curr.SpendVal) {
-                  return prev;
-                } else {
-                  return curr;
-                }
-              });
-
-              const mostBoughtItem = items.reduce((prev, curr) => {
-                if (prev.count > curr.count) {
-                  return prev;
-                } else {
-                  return curr;
-                }
-              });
-
-              const mostSpentItem = items.reduce((prev, curr) => {
-                if (prev.itemPrice * prev.count < curr.itemPrice * curr.count) {
-                  return prev;
-                } else {
-                  return curr;
-                }
-              });
-
-              const transactionStatistics: TransactionStatistic[] = [
-                {
-                  stat: purchases.length.toString(),
-                  statName: 'Total Items Purchased',
-                },
-                {
-                  stat: items.length.toString(),
-                  statName: 'Unique Purchases',
-                },
-                {
-                  stat: `RM ${Math.abs(mostExpensiveItem.SpendVal).toFixed(2)}`,
-                  statName: 'Most Expensive Item:',
-                  statInfo: mostExpensiveItem.ItemName,
-                },
-                {
-                  stat: mostBoughtItem.count.toString(),
-                  statName: 'Most Bought Item:',
-                  statInfo: mostBoughtItem.itemName,
-                },
-                {
-                  stat: `RM ${Math.abs(mostSpentItem.itemPrice * mostSpentItem.count).toFixed(2)}`,
-                  statName: 'Most Spent on an Item:',
-                  statInfo: mostSpentItem.itemName,
-                },
-                {
-                  stat: `RM ${remainingBalance.toFixed(2)}`,
-                  statName: 'Remaining Balance',
-                },
-              ];
+              const items: ItemListItem[] = sortAndRank(purchases);
 
               const paginationLinks = [];
               for (let i = 0; i < Math.ceil(items.length / perPage); i++) {
@@ -380,30 +227,31 @@ const APSpace = () => {
 
               return (
                 <>
-                  <StatCards transactionStatistics={transactionStatistics} />
-                  <Heading textAlign="center" textDecor="underline">
-                    Purchased Items
-                  </Heading>
-                  <Box textAlign="right">
-                    <Text d="inline">Sort By</Text>
-                    <Box d="inline" textDecor="underline">
-                      <Link
-                        mx={2}
-                        fontWeight={sortBy === 0 ? theme.fontWeights.semibold : theme.fontWeights.normal}
-                        onClick={() => handleSort(0)}
-                      >
-                        Quantity
-                      </Link>
-                      <Link
-                        mx={2}
-                        fontWeight={sortBy === 1 ? theme.fontWeights.semibold : theme.fontWeights.normal}
-                        onClick={() => handleSort(1)}
-                      >
-                        Subtotal
-                      </Link>
+                  <StatCards items={items} lastTransaction={transactions[0]} purchases={purchases} />
+                  <Box m={2} d={['block', 'flex']} justifyContent="space-between" alignItems="baseline">
+                    <Heading>Purchased Items</Heading>
+                    <Box>
+                      <Text d="inline">Sort By</Text>
+                      <Box d="inline" textDecor="underline">
+                        <Link
+                          mx={2}
+                          fontWeight={sortBy === 0 ? theme.fontWeights.semibold : theme.fontWeights.normal}
+                          onClick={() => handleSort(0)}
+                        >
+                          Quantity
+                        </Link>
+                        <Link
+                          mx={2}
+                          fontWeight={sortBy === 1 ? theme.fontWeights.semibold : theme.fontWeights.normal}
+                          onClick={() => handleSort(1)}
+                        >
+                          Subtotal
+                        </Link>
+                      </Box>
                     </Box>
                   </Box>
-                  <ItemList items={items} />
+                  <Divider />
+                  <ItemList items={items} page={page} perPage={perPage} />
                   <Center w={theme.sizes.full}>
                     <Box my={theme.space[6]}>{paginationLinks}</Box>
                   </Center>
@@ -428,7 +276,7 @@ const APSpace = () => {
     <>
       <Container maxW={theme.sizes['6xl']} centerContent>
         <Heading textAlign="center" size="2xl" color="white" mb={theme.space[6]}>
-          View Total Spent In APCard
+          View APCard Stats
         </Heading>
         <Box maxW={theme.sizes.xl}>
           <InputGroup size="md" my={2}>

@@ -7,10 +7,10 @@ import { ChakraProvider, extendTheme } from '@chakra-ui/react';
 
 const colors = {
   brand: {
-    // 'persian-green': '#2a9d8f',
-    // 'yellow-crayola': '#e9c46a',
-    // 'sandy-brown': '#f4a261',
-    // 'burnt-sienna': '#e76f51',
+    'persian-green': '#2a9d8f',
+    'yellow-crayola': '#e9c46a',
+    'sandy-brown': '#f4a261',
+    'burnt-sienna': '#e76f51',
     'charcoal-black': '#264653',
     900: '#3e0098',
     800: '#5200a5',
