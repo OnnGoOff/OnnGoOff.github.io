@@ -60,16 +60,17 @@ const Woon = () => {
                 <Flex>
                   {navLinks.map((navLink) => {
                     return (
-                      <ChakraLink
-                        key={navLink.displayName}
-                        textAlign="center"
-                        as="div"
-                        fontSize={[theme.fontSizes.sm, theme.fontSizes.lg]}
-                        mx={2}
-                        fontWeight={theme.fontWeights.semibold}
-                      >
-                        <Link to={navLink.link}>{navLink.displayName}</Link>
-                      </ChakraLink>
+                      <Link key={navLink.displayName} to={navLink.link}>
+                        <ChakraLink
+                          as="div"
+                          textAlign="center"
+                          fontSize={[theme.fontSizes.sm, theme.fontSizes.lg]}
+                          mx={2}
+                          fontWeight={theme.fontWeights.semibold}
+                        >
+                          {navLink.displayName}
+                        </ChakraLink>
+                      </Link>
                     );
                   })}
                 </Flex>

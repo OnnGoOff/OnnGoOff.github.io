@@ -94,7 +94,7 @@ const StatCards: FunctionComponent<StatCardsProps> = ({ purchases, lastTransacti
               <Text textAlign="center" fontSize={[theme.fontSizes.xs, theme.fontSizes.md]}>
                 {stat.statName}
                 {stat.statInfo ? (
-                  <Text as="span" fontWeight={theme.fontWeights.semibold}>
+                  <Text as="span" d="block" fontWeight={theme.fontWeights.semibold}>
                     {stat.statInfo}
                   </Text>
                 ) : (

@@ -129,7 +129,7 @@ const APSpace = () => {
       const [u, p] = [username.current?.value, password.current?.value];
       const success = await getAllData(u, p);
       if (success) {
-        setCookiesCredentials('ogo-creds', { username: u, password: p });
+        setCookiesCredentials('ogo-creds', { username: u, password: p }, { sameSite: 'lax' });
       }
     }
   };
@@ -351,7 +351,7 @@ const APSpace = () => {
             }
           })()}
         </Box>
-        <Box>
+        <Box minW={theme.sizes.full}>
           <StudentData />
           <TransactionStats />
         </Box>
