@@ -34,7 +34,7 @@ const StudentDataSection: FunctionComponent<StudentDataSectionProps> = ({ photo,
             let spookyScarySkeletons = [];
             for (let i = 0; i <= 9; i++) {
               spookyScarySkeletons.push(
-                <Skeleton startColor="brand.400" endColor="brand.800" height="20px"></Skeleton>
+                <Skeleton key={i} startColor="brand.400" endColor="brand.800" height="20px"></Skeleton>
               );
             }
             return spookyScarySkeletons;
@@ -56,31 +56,58 @@ const StudentDataSection: FunctionComponent<StudentDataSectionProps> = ({ photo,
         </Center>
         <Stack textAlign="center">
           <Text>
-            Name: <Text d="inline">{titleString(profile.NAME)}</Text>
+            Name:{' '}
+            <Text as="span" d="inline" fontWeight={theme.fontWeights.semibold}>
+              {titleString(profile.NAME)}
+            </Text>
           </Text>
           <Text>
-            Intake: <Text d="inline">{profile.INTAKE}</Text>
+            Intake:{' '}
+            <Text as="span" d="inline" fontWeight={theme.fontWeights.semibold}>
+              {profile.INTAKE}
+            </Text>
           </Text>
           <Text>
-            IC/Passport Number: <Text d="inline">{profile.IC_PASSPORT_NO}</Text>
+            IC/Passport Number:{' '}
+            <Text as="span" d="inline" fontWeight={theme.fontWeights.semibold}>
+              {profile.IC_PASSPORT_NO}
+            </Text>
           </Text>
           <Text>
-            Country: <Text d="inline">{profile.COUNTRY}</Text>
+            Country:{' '}
+            <Text as="span" d="inline" fontWeight={theme.fontWeights.semibold}>
+              {profile.COUNTRY}
+            </Text>
           </Text>
           <Text>
-            Mentor: <Text d="inline">{titleString(profile.MENTOR_NAME)}</Text>
+            Mentor:{' '}
+            <Text as="span" d="inline" fontWeight={theme.fontWeights.semibold}>
+              {titleString(profile.MENTOR_NAME)}
+            </Text>
           </Text>
           <Text>
-            Programme Leader: <Text d="inline">{titleString(profile.PL_NAME)}</Text>
+            Programme Leader:{' '}
+            <Text as="span" d="inline" fontWeight={theme.fontWeights.semibold}>
+              {titleString(profile.PL_NAME)}
+            </Text>
           </Text>
           <Text>
-            Programme: <Text d="inline">{profile.PROGRAMME}</Text>
+            Programme:{' '}
+            <Text as="span" d="inline" fontWeight={theme.fontWeights.semibold}>
+              {profile.PROGRAMME}
+            </Text>
           </Text>
           <Text>
-            Email: <Text d="inline">{profile.STUDENT_EMAIL}</Text>
+            Email:{' '}
+            <Text as="span" d="inline" fontWeight={theme.fontWeights.semibold}>
+              {profile.STUDENT_EMAIL}
+            </Text>
           </Text>
           <Text>
-            TP Number: <Text d="inline">{profile.STUDENT_NUMBER}</Text>
+            TP Number:{' '}
+            <Text as="span" d="inline" fontWeight={theme.fontWeights.semibold}>
+              {profile.STUDENT_NUMBER}
+            </Text>
           </Text>
         </Stack>
       </>

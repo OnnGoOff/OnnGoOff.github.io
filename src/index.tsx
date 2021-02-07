@@ -3,6 +3,8 @@ import ReactDOM from 'react-dom';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
+import { CookiesProvider } from 'react-cookie';
+
 import { ChakraProvider, extendTheme } from '@chakra-ui/react';
 
 const colors = {
@@ -30,7 +32,9 @@ const theme = extendTheme({ colors });
 ReactDOM.render(
   <React.StrictMode>
     <ChakraProvider theme={theme}>
-      <App />
+      <CookiesProvider>
+        <App />
+      </CookiesProvider>
     </ChakraProvider>
   </React.StrictMode>,
   document.getElementById('root')

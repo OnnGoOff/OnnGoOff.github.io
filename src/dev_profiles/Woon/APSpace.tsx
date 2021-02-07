@@ -10,11 +10,10 @@ import {
   theme,
   Center,
   Heading,
-  Flex,
-  useTheme,
   Link,
   Divider,
 } from '@chakra-ui/react';
+
 import { getAPCardData, getStudentImage, getStudentProfile } from './hooks/APSpaceServices';
 import StudentProfile from './interfaces/StudentProfile';
 import Transaction from './interfaces/Transaction';
@@ -29,6 +28,7 @@ import StudentDataSection from './components/StudentDataSection';
 import hashCode from './utils/hashCode';
 import { CloseIcon } from '@chakra-ui/icons';
 import { WoonPageContext } from '.';
+import { useCookies } from 'react-cookie';
 
 export interface ItemListItem {
   rank: number;
@@ -46,7 +46,15 @@ export interface TransactionStatistic {
 
 const APSpace = () => {
   //#region Declarations
-  const brandTheme = useTheme();
+  /**
+   * Cookies stuff
+   */
+  const [cookiesCredentials, setCookiesCredentials, removeCookiesCredentials] = useCookies(['ogo-creds']);
+  useEffect(() => {
+    if (cookiesCredentials['ogo-creds']) {
+      getAllData(cookiesCredentials['ogo-creds'].username, cookiesCredentials['ogo-creds'].password);
+    }
+  }, [cookiesCredentials]);
 
   /**
    * Getting and using the WoonPageContext for the
@@ -80,7 +88,7 @@ const APSpace = () => {
   /**
    * Pagination stuff
    */
-  const [perPage] = useState(12);
+  const [perPage] = useState(8);
   const [page, setPage] = useState(1);
 
   /**
@@ -89,23 +97,40 @@ const APSpace = () => {
   const username = React.createRef<HTMLInputElement>();
   const password = React.createRef<HTMLInputElement>();
 
+  const getAllData = async (username: string, password: string) => {
+    setIsLoading(true);
+    setIsError(false);
+    try {
+      const APCardData = await getAPCardData(username, password);
+      const studentData = await getStudentProfile(username, password);
+      const studentImage = await getStudentImage(username, password);
+
+      setTransactions(APCardData as Transaction[]);
+      setProfile(studentData as StudentProfile);
+      setPhoto(studentImage as StudentPhoto);
+      return true;
+    } catch (error) {
+      setIsError(true);
+      return false;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleLogout = () => {
+    setProfile(undefined);
+    setTransactions([]);
+    setPhoto(undefined);
+    removeCookiesCredentials('ogo-creds');
+  };
+
   const handleLogin = async () => {
     if (username.current?.value && password.current?.value) {
-      setIsLoading(true);
-      setIsError(false);
-      const [u, p] = [username.current.value, password.current.value];
-      try {
-        const APCardData = await getAPCardData(u, p);
-        const studentData = await getStudentProfile(u, p);
-        const studentImage = await getStudentImage(u, p);
-
-        setTransactions(APCardData as Transaction[]);
-        setProfile(studentData as StudentProfile);
-        setPhoto(studentImage as StudentPhoto);
-      } catch (error) {
-        setIsError(true);
+      const [u, p] = [username.current?.value, password.current?.value];
+      const success = await getAllData(u, p);
+      if (success) {
+        setCookiesCredentials('ogo-creds', { username: u, password: p });
       }
-      setIsLoading(false);
     }
   };
 
@@ -279,31 +304,57 @@ const APSpace = () => {
           View APCard Stats
         </Heading>
         <Box maxW={theme.sizes.xl}>
-          <InputGroup size="md" my={2}>
-            <Input bgColor="white" ref={username} pr="4.5rem" type="text" placeholder="Enter TP number" />
-          </InputGroup>
-          <InputGroup size="md" my={1}>
-            <Input
-              bgColor="white"
-              ref={password}
-              pr="4.5rem"
-              type={show ? 'text' : 'password'}
-              placeholder="Enter password"
-            />
-            <InputRightElement width="4.5rem">
-              <Button h="1.75rem" size="sm" onClick={handleClick}>
-                {show ? 'Hide' : 'Show'}
-              </Button>
-            </InputRightElement>
-          </InputGroup>
-          <Button colorScheme={brandTheme.brand} variant="solid" my={1} onClick={handleLogin}>
-            Check Data
-          </Button>
+          {(() => {
+            if (cookiesCredentials['ogo-creds']) {
+              return (
+                <>
+                  <Box bgColor="white" borderRadius={theme.radii.lg} p={4}>
+                    <Text m={4} fontSize={theme.fontSizes.lg}>
+                      Logged in as {cookiesCredentials['ogo-creds'].username}
+                    </Text>
+                    <Center>
+                      <Button color="white" bgColor="brand.400" variant="solid" my={1} onClick={handleLogout}>
+                        Log Out
+                      </Button>
+                    </Center>
+                  </Box>
+                </>
+              );
+            } else {
+              return (
+                <>
+                  <Box bgColor="white" borderRadius={theme.radii.lg} p={4}>
+                    <InputGroup size="md" my={2}>
+                      <Input ref={username} pr="4.5rem" type="text" placeholder="Enter TP number" />
+                    </InputGroup>
+                    <InputGroup size="md" my={1}>
+                      <Input
+                        ref={password}
+                        pr="4.5rem"
+                        type={show ? 'text' : 'password'}
+                        placeholder="Enter password"
+                      />
+                      <InputRightElement width="4.5rem">
+                        <Button h="1.75rem" size="sm" onClick={handleClick}>
+                          {show ? 'Hide' : 'Show'}
+                        </Button>
+                      </InputRightElement>
+                    </InputGroup>
+                    <Center>
+                      <Button color="white" bgColor="brand.400" variant="solid" my={1} onClick={handleLogin}>
+                        Check Data
+                      </Button>
+                    </Center>
+                  </Box>
+                </>
+              );
+            }
+          })()}
         </Box>
-        <Flex maxW={theme.sizes.full} flexWrap="wrap" shrink={1} grow={1}>
+        <Box>
           <StudentData />
           <TransactionStats />
-        </Flex>
+        </Box>
       </Container>
     </>
   );

@@ -85,7 +85,7 @@ const StatCards: FunctionComponent<StatCardsProps> = ({ purchases, lastTransacti
             h={['6rem', '8rem']}
             boxShadow={theme.shadows.md}
             borderRadius={theme.radii.lg}
-            bgColor="brand.700"
+            bgColor="brand.400"
           >
             <Center h={theme.sizes.full} flexDir="column" color="white">
               <Text textAlign="center" fontSize={[theme.fontSizes.xl, theme.fontSizes['4xl']]}>
@@ -93,7 +93,13 @@ const StatCards: FunctionComponent<StatCardsProps> = ({ purchases, lastTransacti
               </Text>
               <Text textAlign="center" fontSize={[theme.fontSizes.xs, theme.fontSizes.md]}>
                 {stat.statName}
-                {stat.statInfo ? <Text fontWeight={theme.fontWeights.semibold}>{stat.statInfo}</Text> : ''}
+                {stat.statInfo ? (
+                  <Text as="span" fontWeight={theme.fontWeights.semibold}>
+                    {stat.statInfo}
+                  </Text>
+                ) : (
+                  ''
+                )}
               </Text>
             </Center>
           </Box>

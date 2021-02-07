@@ -10,7 +10,7 @@ interface ItemListProps {
 
 const ItemList: FunctionComponent<ItemListProps> = ({ items, page, perPage }) => {
   return (
-    <Grid gridTemplateColumns={['1fr', '1fr 1fr 1fr']}>
+    <Grid gridTemplateColumns={['1fr', '1fr 1fr']}>
       {items.slice((page - 1) * perPage, perPage * page).map((item, ix) => {
         return (
           <Box
@@ -29,31 +29,40 @@ const ItemList: FunctionComponent<ItemListProps> = ({ items, page, perPage }) =>
               verticalAlign="baseline"
             >
               <Text
+                as="span"
                 d="inline"
-                fontSize={theme.fontSizes.md}
-                color={item.rank === 1 ? 'gold' : item.rank === 2 ? 'silver' : item.rank === 3 ? 'brown' : 'black'}
+                textShadow={
+                  item.rank === 1
+                    ? '0 0 0.25rem black'
+                    : item.rank === 2
+                    ? '0 0 0.25rem #707070'
+                    : item.rank === 3
+                    ? '0 0 0.25rem #852300'
+                    : 'none'
+                }
+                color={item.rank === 1 ? '#fedf00' : item.rank === 2 ? '#707070' : item.rank === 3 ? '#852300' : 'none'}
               >
-                #{item.rank} -{' '}
-              </Text>
-              {item.itemName.trim()}
+                #{item.rank}
+              </Text>{' '}
+              - <Text as="span">{item.itemName.trim()}</Text>
             </Text>
             <StatGroup alignItems="center">
-              <Stat>
-                <StatLabel>Price</StatLabel>
-                <StatNumber fontSize={theme.fontSizes.lg}>RM {Math.abs(item.itemPrice).toFixed(2)}</StatNumber>
-              </Stat>
-
-              <Stat>
-                <StatLabel>Bought</StatLabel>
-                <StatNumber fontSize={theme.fontSizes.lg}>{item.count}</StatNumber>
-              </Stat>
-
-              <Stat>
-                <StatLabel>Subtotal</StatLabel>
-                <StatNumber fontSize={theme.fontSizes.lg}>
-                  RM {Math.abs(item.itemPrice * item.count).toFixed(2)}
-                </StatNumber>
-              </Stat>
+              {[
+                { label: 'Price', body: `RM ${Math.abs(item.itemPrice).toFixed(2)}` },
+                { label: 'Bought', body: item.count },
+                { label: 'Subtotal', body: ` RM ${Math.abs(item.itemPrice * item.count).toFixed(2)}` },
+              ].map((stat) => {
+                return (
+                  <Stat key={stat.label}>
+                    <StatLabel fontWeight={theme.fontWeights.semibold} color={theme.colors.gray[400]}>
+                      {stat.label}
+                    </StatLabel>
+                    <StatNumber fontWeight={theme.fontWeights.normal} fontSize={theme.fontSizes.lg}>
+                      {stat.body}
+                    </StatNumber>
+                  </Stat>
+                );
+              })}
             </StatGroup>
           </Box>
         );
